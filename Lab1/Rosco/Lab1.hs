@@ -41,37 +41,47 @@ sumThirdPower n = sum (map (^3) [1..n])
 sumThirdPower2 n = quot (n * (n + 1)) 2 ^ 2
 test12 = quickCheckResult (\ n -> n > 0 --> sumThirdPower n == sumThirdPower2 n)
 
--- Assignment 2 (15 minutes)
+-- Assignment 2 (30 minutes)
 powerSetCardinality :: Int -> Int
 powerSetCardinality n = length (subsequences [1..n])
 test2 = quickCheckResult (\ n -> n > 0 && n < 25 --> powerSetCardinality n == 2 ^ n)
 
 -- Questions:
 -- Is this property hard to test? If you find that it is, can you given a reason why?
---     Yes, because higher n's take a lot more time to compute.
---     We decided to only test n's under 25 to keep test times manageable.
+--   Yes, because higher n's take a lot more time to compute. We decided to only test
+--   n's under 25 to keep test times manageable.
 
 -- Give your thoughts on the following issue: when you perform the test for exercise 4,
 -- what are you testing actually? Are you checking a mathematical fact? Or are you testing
 -- whether subsequences satisfies a part of its specification? Or are you testing something
 -- else still?
---     TODO: Answer
+--   When we test this, we are mainly testing a mathematical fact. Since the subsequences
+--   function is part of Haskell, we can assume this has been properly tested and functions as expected.
+--   Because of this I would definitely say that we are not testing the subsequences function.
+--   However, we are also testing our implementation, and testing that we are correctly using these
+--   functions.
 
--- Assignment 3 (45 minutes)
+-- Assignment 3 (50 minutes)
 permutationCount :: Int -> Int
 permutationCount n = length (perms [1..n])
 test3 = quickCheckResult (\ n -> n > 0 && n < 10 --> permutationCount n == factorial n)
 
 -- Questions:
 -- Is this property hard to test? If you find that it is, can you given a reason why?
---     Yes, because higher n's take a lot more time to compute.
---     We decided to only test n's under 10 to keep test times manageable.
+--   Yes, because higher n's take a lot more time to compute. We decided to only test
+--   n's under 10 to keep test times manageable.
 
 -- Again, give your thoughts on the following issue: when you perform the test for
 -- exercise 5, what are you testing actually? Are you checking a mathematical fact?
 -- Or are you testing whether perms satisfies a part of its specification? Or are you
 -- testing something else still?
---     TODO: Answer
+--   In this test, we are testing quite a few different things. Because we implemented
+--   the perms function ourselves, we are partially testing that it behaves as expected.
+--   At the same time we are testing that the formula we found is correct, and we are testing
+--   the implementation of the functions. Because we are testing these things simultaneously,
+--   it is difficult to understand the meaning of a test failure. Therefore it would
+--   probably be better to test the specifications of the implemented functions
+--   separately from the found formula and its implementation.
 
 -- Assignment 4 (30 minutes)
 reversalPrimes :: [Integer]
@@ -79,7 +89,13 @@ reversalPrimes = filter (prime . reversal) primes
 
 -- Questions:
 -- How would you test this function, by the way?
---     TODO: Answer
+--   It could be tested by reversing all primes in the list and verifying that
+--   these reversals are also primes, but this would be done with the same functions
+--   that also make up the original function (prime, reversal), so unless the test
+--   function would use a different method of verifying this property, it would not
+--   really be testing anything. We could store the (pre-known) list of reversal
+--   primes and check that this list is the same as the output of the implemented
+--   function, but this also seems a bit cumbersome.
 
 -- Assignment 5 (15 minutes)
 primeSum :: Int -> Int -> Integer
@@ -95,7 +111,7 @@ smallestPrimeSum101ThatIsPrime = head primeSums101ThatArePrime
 
 -- Questions:
 -- Do you have to test that your answer is correct? How could this be checked?
---     TODO: Answer
+--   Tjarco has a good answer to this question.
 
 -- Assignment 6 (30 minutes)
 primeProducts :: [[Integer]]
@@ -149,7 +165,7 @@ isVisa n = length digits `elem` [13, 16..19] && head digits == 4 && luhn n where
 
 -- TODO: Write tests
 
--- Assignment 8
+-- Assignment 8 (1.25 hours)
 data Boy = Matthew | Peter | Jack | Arnold | Carl deriving (Eq,Show)
 boys = [Matthew, Peter, Jack, Arnold, Carl]
 
