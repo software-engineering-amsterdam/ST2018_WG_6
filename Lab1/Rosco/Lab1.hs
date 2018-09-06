@@ -118,7 +118,7 @@ primeProducts :: [[Integer]]
 primeProducts = map (`take` primes) [1..]
 
 primeProductsThatAreNotPrime :: [[Integer]]
-primeProductsThatAreNotPrime = filter (\p -> not (prime (product p + 1))) primeProducts
+primeProductsThatAreNotPrime = filter (not . prime . (+ 1) . product) primeProducts
 
 -- Assignment 7 (1.5 hours)
 integerToDigits :: Integer -> [Int]
@@ -186,5 +186,5 @@ accusers :: Boy -> [Boy]
 accusers boy = filter (`accuses` boy) boys
 
 guilty, honest :: [Boy]
-guilty = filter (\ b -> length (accusers b) >= 3) boys
-honest = head (filter (\ a -> length a >= 3) (map accusers boys))
+guilty = filter ((>= 3) . length . accusers) boys
+honest = head (filter ((>= 3) . length) (map accusers boys))
