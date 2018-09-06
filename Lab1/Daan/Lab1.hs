@@ -139,8 +139,20 @@ accuses :: Boy -> Boy -> Bool
 accuses Matthew b
   | b == Carl = False
   | b == Matthew = False
-  | otherwise _
+  | otherwise = True
+
 accuses Peter b
   | b == Matthew = True
   | b == Jack = True
   | otherwise = False
+
+accuses Jack b = not (accuses Matthew b) && not (accuses Peter b)
+accuses Arnold b = accuses Matthew b /= accuses Peter b
+accuses Carl b = not (accuses Arnold b)
+
+accusers :: Boy -> [Boy]
+accusers b = filter (\x -> accuses x b) boys
+
+guilty, honest :: [Boy]
+guilty = filter (\b -> (length (accusers b)) >= 3) boys
+honest = accusers (head guilty)
