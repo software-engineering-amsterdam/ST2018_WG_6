@@ -46,11 +46,8 @@ sumCubes2 n = quot (n*(n+1)) 2 ^ 2
 sumCubesTest = quickCheckResult(\n -> n > 0 --> sumCubes n == sumCubes2 n)
 
 -- Assignment 2: 10 minutes --
-setLength :: Int -> Int
-setLength n = length [0 .. n]
-
 powerSetLength :: Int -> Int
-powerSetLength n = length (subsequences [0..n])
+powerSetLength n = length (subsequences [1..n])
 
 {-
   Unfortunatly, QuickCheck will feed integers to powerSetLenght function that
@@ -61,13 +58,9 @@ powerSetLength n = length (subsequences [0..n])
   We are checking a mathematical fact, namely if |A| = n, then |P(A)| = 2^n
 -}
 powerSetLengthTest = quickCheckResult(\n -> n >= 0 && n < 25 -->
-                                      powerSetLength n == 2 ^ setLength n)
+                                      powerSetLength n == 2 ^ n)
 
 -- Assignment 3: 10 minutes --
-factorial :: Int -> Int
-factorial 0 = 1
-factorial x = x * factorial (x-1)
-
 permutationsLength :: Int -> Int
 permutationsLength n = length (permutations [0..n-1])
 
@@ -122,7 +115,7 @@ findPrimeSum101 = findPrimeSum 101 primes
   now assume that x is not the smallest prime number with this property. This
   means that there is a range [2 .. m1 .. m100 ..] such that m1 > n1 where
   Sum m1 .. m100 is smaller than x. However, since m1 is larger than n1, the sum
-  of consecutive primes can never be smaller, hence a contracition, which proves
+  of consecutive primes can never be smaller, hence a contradiction, which proves
   that x is the smallest prime
 -}
 
@@ -194,9 +187,9 @@ isVisa x
   The test is implemented by getting valid generated numbers for the different
   cards, allongside with some altered numbers such that they become false.
 
-  The test functions check wheter the return values from our card validators
+  The test functions check wheter the return values from the card validators
   match the expected result from the valid and invalid numbers in the values
-  lists  
+  lists
 -}
 americanExpressValues = [378282246310005, 371449635398431,
   378734493671000, 378734493671001, 340000000000009, 300000000000009]
@@ -243,5 +236,5 @@ guilty = [boy | boy <- boys, length (accusers boy) >= 3]
 honest = accusers (head guilty)
 
 {-
-  Hence, the guilty one is Jack and the hones ones are Matthew, Peter and Carl
+  Hence, the guilty one is Jack and the honest ones are Matthew, Peter and Carl
 -}
