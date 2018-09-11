@@ -273,3 +273,11 @@ isPythagoreanTriangle [] = False
 isPythagoreanTriangle (a:b:c) = a**2 + b**2 == head c ** 2
 
 pythagoreanTest = sum (pythagorean 1000) == 1000 && isPythagoreanTriangle (pythagorean 1000)
+
+{-
+  The actual sollution to the assignment, since the assignment states that the
+  result should be the product of the triplet abc.
+
+  The answer is: a*b*c =  200 * 375 * 425 = 31875000
+-}
+pythagoreanProduct = product . pythagorean
