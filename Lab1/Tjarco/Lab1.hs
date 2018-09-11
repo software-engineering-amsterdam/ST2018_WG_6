@@ -281,3 +281,12 @@ pythagoreanTest = sum (pythagorean 1000) == 1000 && isPythagoreanTriangle (pytha
   The answer is: a*b*c =  200 * 375 * 425 = 31875000
 -}
 pythagoreanProduct = product . pythagorean
+
+-- Bonus: Sum of primes below 2 milion: 10 minutes --
+
+primesBelow n  = takeWhile (< n) primes
+sumOfPrimes = sum . primesBelow
+sumOfPrimbesBelow2mil = sumOfPrimes 2000000
+{-
+  The answer is 142913828922
+-}
