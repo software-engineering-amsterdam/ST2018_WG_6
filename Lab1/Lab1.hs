@@ -123,16 +123,18 @@ smallestPrimeSum101ThatIsPrime = head primeSums101ThatArePrime
 -}
 
 -- Assignment 6: 40 minutes --
-productIsNoPrime :: [Integer] -> Bool
-productIsNoPrime x = not (prime (product x + 1))
+primeProducts :: [[Integer]]
+primeProducts = map (`take` primes) [1..]
 
-findNotProductPrimes :: [Int] -> [Integer] -> [[Integer]]
-findNotProductPrimes (n:ns) x
-  | productIsNoPrime (take n x) = take n x : findNotProductPrimes ns x
-  | otherwise = findNotProductPrimes ns x
+productIsNotPrime :: [Integer] -> Bool
+productIsNotPrime = not . prime . (+ 1) . product
 
-findSmallestNotProductPrime :: [Integer]
-findSmallestNotProductPrime = concat (take 1 (findNotProductPrimes [1..] primes))
+primeProductsThatAreNotPrime :: [[Integer]]
+primeProductsThatAreNotPrime = filter productIsNotPrime primeProducts
+
+smallestProductThatIsNotPrime :: [Integer]
+smallestProductThatIsNotPrime = head primeProductsThatAreNotPrime
+
 {-
   Hence, the smallest counter example is [2,3,5,7,11,13]
 -}
