@@ -28,7 +28,7 @@ data Boy = Matthew | Peter | Jack | Arnold | Carl
 boys = [Matthew, Peter, Jack, Arnold, Carl]
 
 factorial :: Int -> Int
-factorial 1  = 1
+factorial 0  = 1
 factorial n = n * factorial (n-1)
 
 -- Assignment 1--
@@ -80,8 +80,8 @@ permutationsLengthTest = quickCheckResult(\n -> n >= 0 && n < 10-->
 reversablePrimes :: [Integer]
 reversablePrimes = filter (prime . reversal) primes
 
-findFirst10000ReversablePrimes :: [Integer]
-findFirst10000ReversablePrimes = take 10000 reversablePrimes
+findReversablePrimesBelow1000 :: [Integer]
+findReversablePrimesBelow1000 = takeWhile (<1000) reversablePrimes
 
 {-
   One could test this function by finding a list of reversable primes
@@ -243,3 +243,81 @@ honest = accusers (head guilty)
 {-
   Hence, the guilty one is Jack and the honest ones are Matthew, Peter and Carl
 -}
+
+-- Bonus: Special Pythagorean triplet: 150 minutes --
+isN :: Float -> Bool
+isN n = floor n == ceiling n
+
+c :: Float -> Float -> Float
+c a b = sqrt (a**2 + b**2)
+cIsN a b = isN (c a b)
+
+findCandidateList [] = []
+findCandidateList (x:xs) = (x : filter (cIsN x) xs) : findCandidateList xs
+
+filteredList n = filter ((>1) . length) (findCandidateList n)
+
+pythagoreanFilter n [] = []
+pythagoreanFilter n (a:b:xs)
+  | a + b + c a b == n = [a, b, c a b]
+  |otherwise = pythagoreanFilter n (a:xs)
+pythagoreanFilter n (a:b) = []
+
+pythagorean n = head (filter (not . null) (map (pythagoreanFilter n) (filteredList [1..n])))
+
+isPythagoreanTriangle [] = False
+isPythagoreanTriangle (a:b:c) = a**2 + b**2 == head c ** 2
+
+pythagoreanTest = sum (pythagorean 1000) == 1000 && isPythagoreanTriangle (pythagorean 1000)
+
+{-
+  The actual sollution to the assignment, since the assignment states that the
+  result should be the product of the triplet abc.
+
+  The answer is: a*b*c =  200 * 375 * 425 = 31875000
+-}
+pythagoreanProduct = product . pythagorean
+
+-- Bonus: Sum of primes below 2 milion: 10 minutes --
+
+primesBelow n  = takeWhile (< n) primes
+sumOfPrimes = sum . primesBelow
+sumOfPrimbesBelow2mil = sumOfPrimes 2000000
+{-
+  The answer is 142913828922
+-}
+
+main = do
+  putStrLn "-- Lab 1 Team 6 --"
+  putStrLn "\nAssignment 1"
+  putStr "Sum squares test: "
+  sumSquaresTest
+  putStr "Sum cubes test: "
+  sumCubesTest
+  putStrLn "\nAssignment 2"
+  putStr "Power set cardinality test: "
+  powerSetLengthTest
+  putStrLn "\nAssignment 3"
+  putStr "Permutations length test"
+  permutationsLengthTest
+  putStrLn "\nAssignment 4"
+  putStrLn "Reversable primes < 1000 :"
+  print findReversablePrimesBelow1000
+  putStrLn "\nAssignment 5"
+  putStrLn "Smallest prime which is the sum of 101 primes: "
+  print smallestPrimeSum101ThatIsPrime
+  putStrLn "\nAssignment 6"
+  putStrLn "Smallest counterexample: "
+  print smallestProductThatIsNotPrime
+  putStrLn "\nAssignment 7"
+  putStr "Mastercard  test: "
+  print (masterTest masterValues masterValuesCheck)
+  putStr "American Express  test: "
+  print (americanExpressTest americanExpressValues americanExpressValuesCheck)
+  putStr "Visa test: "
+  print (visaTest visaValues visaValuesCheck)
+  putStrLn "\nAssignment 8"
+  putStr "Guilty boy: "
+  print guilty
+  putStr "Honest boys: "
+  print honest

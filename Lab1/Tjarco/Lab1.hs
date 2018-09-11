@@ -28,7 +28,7 @@ boys = [Matthew, Peter, Jack, Arnold, Carl]
 
 factorial :: Int -> Int
 factorial 0  = 1
-factorial n = n * factorial n-1
+factorial n = n * factorial (n-1)
 
 -- Assignment 1: 20 minutes --
 sumSquares :: Integer -> Integer
@@ -76,7 +76,7 @@ permutationsLength n = length (permutations [0..n-1])
   We are testing a mathematical fact, namely that the length of a permutation of
   a list A is n!, where n = |A|
 -}
-permutationsLengthTest = quickCheckResult(\n -> n >= 0 && n < 10-->
+permutationsLengthTest = quickCheckResult(\n -> n >= 0 && n < 9-->
                                           permutationsLength n == factorial n)
 
 -- Assignment 4: 15 minutes --
@@ -86,8 +86,8 @@ reverseIsPrime n = prime (reversal n)
 reversablePrimes :: [Integer]
 reversablePrimes = [n | n <- primes, reverseIsPrime n]
 
-findFirst10000ReversablePrimes :: [Integer]
-findFirst10000ReversablePrimes = take 10000 reversablePrimes
+findReversablePrimesBelow1000 :: [Integer]
+findReversablePrimesBelow1000 = takeWhile (<1000) reversablePrimes
 
 {-
   One could test this function by finding a list of reversable primes
@@ -290,3 +290,38 @@ sumOfPrimbesBelow2mil = sumOfPrimes 2000000
 {-
   The answer is 142913828922
 -}
+
+main = do
+  putStrLn "-- Lab 1 Team 6 --"
+  putStrLn "\nAssignment 1"
+  putStr "Sum squares test: "
+  sumSquaresTest
+  putStr "Sum cubes test: "
+  sumCubesTest
+  putStrLn "\nAssignment 2"
+  putStr "Power set cardinality test: "
+  powerSetLengthTest
+  putStrLn "\nAssignment 3"
+  putStr "Permutations length test"
+  permutationsLengthTest
+  putStrLn "\nAssignment 4"
+  putStrLn "Reversable primes < 1000 :"
+  print findReversablePrimesBelow1000
+  putStrLn "\nAssignment 5"
+  putStrLn "Smallest prime which is the sum of 101 primes: "
+  print (sum findPrimeSum101)
+  putStrLn "\nAssignment 6"
+  putStrLn "Smallest counterexample: "
+  print findSmallestNotProductPrime
+  putStrLn "\nAssignment 7"
+  putStr "Mastercard  test: "
+  print (masterTest masterValues masterValuesCheck)
+  putStr "American Express  test: "
+  print (americanExpressTest americanExpressValues americanExpressValuesCheck)
+  putStr "Visa test: "
+  print (visaTest visaValues visaValuesCheck)
+  putStrLn "\nAssignment 8"
+  putStr "Guilty boy: "
+  print guilty
+  putStr "Honest boys: "
+  print honest
