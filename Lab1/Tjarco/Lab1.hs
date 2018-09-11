@@ -247,3 +247,29 @@ honest = accusers (head guilty)
 {-
   Hence, the guilty one is Jack and the honest ones are Matthew, Peter and Carl
 -}
+
+-- Bonus: Special Pythagorean triplet: 150 minutes --
+isN :: Float -> Bool
+isN n = floor n == ceiling n
+
+c :: Float -> Float -> Float
+c a b = sqrt (a**2 + b**2)
+cIsN a b = isN (c a b)
+
+findCandidateList [] = []
+findCandidateList (x:xs) = (x : filter (cIsN x) xs) : findCandidateList xs
+
+filteredList n = filter ((>1) . length) (findCandidateList n)
+
+pythagoreanFilter n [] = []
+pythagoreanFilter n (a:b:xs)
+  | a + b + c a b == n = [a, b, c a b]
+  |otherwise = pythagoreanFilter n (a:xs)
+pythagoreanFilter n (a:b) = []
+
+pythagorean n = head (filter (not . null) (map (pythagoreanFilter n) (filteredList [1..n])))
+
+isPythagoreanTriangle [] = False
+isPythagoreanTriangle (a:b:c) = a**2 + b**2 == head c ** 2
+
+pythagoreanTest = sum (pythagorean 1000) == 1000 && isPythagoreanTriangle (pythagorean 1000)
