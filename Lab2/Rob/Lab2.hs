@@ -64,8 +64,12 @@ test1result = do
     result <- mapM test1 [1..100]
     let correct = show (length (filter (\x -> x) result)) in putStrLn (correct ++ " out of 100 tests are within 5% of the expected range")
 
--- main :: IO ()
--- main = do
---     putStrLn "-- Lab 2 Team 6 --"
---     putStrLn "\nAssignment 1"
---     putStr "Test: " 
+
+-- MAIN --
+main :: IO ()
+main = do
+    putStrLn "-- Lab 2 Team 6 --"
+    putStrLn "\nAssignment 1"
+    putStr "Result: "
+    test1result
+
