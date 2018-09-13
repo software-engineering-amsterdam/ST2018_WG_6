@@ -48,15 +48,21 @@ randomQuartileDistribution x = do
 --     @param3        the percentage they are allowed to differ
 
 --     @return        true if the checked value is within the range of the desired value
-withinRange :: Int -> Int -> Int -> Bool
-withinRange x y p = (x <= (y + (p `div` 100) * y)) && (x >= (y - (p `div` 100) * y))
+withinRange :: Float -> Float -> Float -> Bool
+-- withinRange x y p = (x <= (y + (p / 100) * y)) && (x >= (y - (p / 100) * y))
+withinRange x y p = (x <= (y + (p / 100) * y)) && (x >= (y - (p / 100) * y))
 
-evenlyDistributed :: [Int] -> Bool
-evenlyDistributed l = (foldr ((&&) . (\x -> withinRange x (sum l `div` 4) 5)) True l)
+-- Function to check if a list of frequencies is evenly distributed
+testFrequencyErrors :: [Int] -> IO Bool
+testFrequencyErrors l = 
+    let average = ((fromIntegral (sum l)) / 4.0) in return (foldr ((&&) . (\x -> withinRange (fromIntegral x) average 5.0)) True l)
 
+test1 :: a -> IO Bool
+test1 a = randomQuartileDistribution 10000 >>= testFrequencyErrors
 
-
--- test1 = 
+test1result = do
+    result <- mapM test1 [1..100]
+    let correct = show (length (filter (\x -> x) result)) in putStrLn (correct ++ " out of 100 tests are within 5% of the expected range")
 
 -- main :: IO ()
 -- main = do
