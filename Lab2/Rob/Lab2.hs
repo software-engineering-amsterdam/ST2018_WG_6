@@ -83,11 +83,16 @@ triangle a b c
     | otherwise = Other
 
 
-testTriangles = [
-    ([2,2,2], Isosceles),
-    ([1,2,2], Equilateral),
+triangleTestData = [
+    ([2,2,2], Equilateral),
+    ([1,2,2], Isosceles),
     ([1,2,3], Other),
     ([3,4,5], Rectangular)]
+
+testTriangle :: [Integer] -> Shape -> Bool
+testTriangle (a:b:c:_) s = triangle a b c == s
+
+test2 = [x | x <- triangleTestData, uncurry testTriangle x]
 
 -- MAIN --
 main :: IO ()
