@@ -49,7 +49,6 @@ randomQuartileDistribution x = do
 
 --     @return        true if the checked value is within the range of the desired value
 withinRange :: Float -> Float -> Float -> Bool
--- withinRange x y p = (x <= (y + (p / 100) * y)) && (x >= (y - (p / 100) * y))
 withinRange x y p = (x <= (y + (p / 100) * y)) && (x >= (y - (p / 100) * y))
 
 -- Function to check if a list of frequencies is evenly distributed
@@ -64,6 +63,31 @@ test1result = do
     result <- mapM test1 [1..100]
     let correct = show (length (filter (\x -> x) result)) in putStrLn (correct ++ " out of 100 tests are within 5% of the expected range")
 
+
+-- Assignment 2 --
+
+-- According to wikipedia: 
+-- Condition on the sides 
+-- The triangle inequality states that the sum of the lengths of any two sides of a triangle 
+-- must be greater than or equal to the length of the third side. That sum can equal the length
+-- of the third side only in the case of a degenerate triangle, one with collinear vertices.
+-- It is not possible for that sum to be less than the length of the third side. 
+-- A triangle with three given positive side lengths exists if and only if those side lengths satisfy the triangle inequality.
+
+triangle :: Integer -> Integer -> Integer -> Shape
+triangle a b c
+    | a + b < c || a + c < b || b + c < a = NoTriangle
+    | a == b && b == c = Equilateral
+    | a == b || a == c || b == c = Isosceles
+    | a^2 + b^2 == c^2 || a^2 + b^2 == c^2 || b^2 + c^2 == a^2 = Rectangular
+    | otherwise = Other
+
+
+testTriangles = [
+    ([2,2,2], Isosceles),
+    ([1,2,2], Equilateral),
+    ([1,2,3], Other),
+    ([3,4,5], Rectangular)]
 
 -- MAIN --
 main :: IO ()
