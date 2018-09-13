@@ -77,9 +77,7 @@ triangle a b c
     | isRectangular a b c = Rectangular
     | otherwise = Other
 
----------------- Assignment 3 S(21:55)-15 ---------------
-data PropName = P0 | P1 | P2 | P3 deriving (Eq, Show)
-
+---------------- Assignment 3-1 (3h) ---------------
 stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 stronger xs p q = forall xs (\ x -> p x --> q x)
 weaker xs p q = stronger xs q p
@@ -93,7 +91,79 @@ p3 = (\ x -> (even x && x > 3) || even x)
 props :: Integral a => [a -> Bool]
 props = [p0, p1, p2, p3]
 
-doTestStronger :: Integral a => [a-> Bool] -> [[Bool]]
-doTeststronger [] = []
-doTestStronger (x:[]) = [map (\ y -> stronger [-10..10] x y) props]
-doTestStronger (x:xs) = ((map (\ y -> stronger [-10..10] x y) props):testStronger xs)
+propOrd :: Integral a => (a -> Bool) -> (a -> Bool) -> Ordering
+propOrd p q
+    | not (stronger [-10..10] p q) = LT
+    | (stronger [-10..10] p q) && (stronger [-10..10] q p) = EQ
+    | otherwise = GT
+
+testStronger :: Integral a => [a -> Bool]
+testStronger = sortBy propOrd props
+-- TODO Find out how the properties can be printed
+
+------------------ Assignment 4 (2h) ------------------
+isPermutation :: Eq a => [a] -> [a] -> Bool
+isPermutation x y = length x == length y && isPermutationElement x y
+
+isPermutationElement :: Eq a => [a] -> [a] -> Bool
+isPermutationElement [] y = True
+isPermutationElement (x:xs) y = length (filter (==x) y) == 1 && isPermutationElement xs y
+
+-- TODO Figure out what properties to test
+
+------------------ Assignment 5 (20min) ---------------
+isDerangement :: Eq a => [a] -> [a] -> Bool
+isDerangement x y = isPermutationElement x y && isDerangementElement x y
+
+isDerangementElement :: Eq a => [a] -> [a] -> Bool
+isDerangementElement [] [] = True
+isDerangementElement _ [] = False
+isDerangementElement [] _ = False
+isDerangementElement (x:xs) (y:ys) = (x /= y) && (isDerangementElement xs ys)
+
+deran :: (Enum a, Num a, Eq a) => a -> [[a]]
+deran n = filter (\x -> isDerangement [0..(n-1)] x) (permutations [0..(n-1)])
+
+-- TODO again, figure out what properties to test
+
+-------------------- Assignment 6 (2h) ---------------
+{-
+    SPECIFICATIONS:
+    * ROT13 is an involution, thus: x == ROT13(ROT13(x))
+    * All characters are flipped, which means they are 13 characters apart.
+      Thus: forall c in x:
+        ord c == ord(ROT13(c))+-13
+    * The string length should stay the same, thus: len(x) == len(ROT13(x))
+-}
+
+inRange :: Int -> Int -> Int -> Bool
+inRange min max x = x >= min && x <= max
+
+rot13 :: [Char] -> [Char]
+rot13 [] = []
+rot13 (c:s)
+    | inRange 97 109 (ord c) || inRange 65 77 (ord c) = (chr (ord(c)+13):rot13 s)
+    | inRange 110 122 (ord c) || inRange 78 90 (ord c) = (chr (ord(c)-13):rot13 s)
+    | otherwise = []
+
+-- Test whether the involution property is true
+-- Input original String and Transformed String
+trot1 :: [Char] -> [Char] -> Bool
+trot1 s ts = s == rot13(ts)
+
+-- Test whether the characters from both strings are 13 apart
+-- Input original String and Transformed String
+trot2 :: [Char] -> [Char] -> Bool
+trot2 [] [] = True
+trot2 _ [] = False
+trot2 [] _ = False
+trot2 (c:s) (tc:ts) = abs (ord(c) - ord(tc)) == 13 && trot2 s ts
+
+-- Test whether the string length is the same, not necessary with trot2
+trot3 :: [Char] -> [Char] -> Bool
+trot3 s ts = length s == length ts
+
+-- TODO properties transform to (a -> Bool)
+testROT13 = quickCheckResult(\x -> (all isAsciiLower x) || (all isAsciiUpper x) --> trot1 x (rot13 x))
+
+--------------- Assignment 7 S(15:10) -------------------
