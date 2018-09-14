@@ -137,12 +137,6 @@ stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
 stronger xs p q = all (\ x -> p x --> q x) xs
 weaker   xs p q = stronger xs q p
 
-pToString :: (Int -> Bool) -> String
-pToString p
-  | not (p 2) = "Property 1.1"
-  | p 5 = "Property 2.1"
-  | otherwise = "Property 1.2, 3.1"
-
 sortStronger :: [a] -> [a -> Bool] -> [a -> Bool]
 sortStronger _ [] = []
 sortStronger domain (x:xs) =
@@ -164,7 +158,7 @@ sortedProbs = sortStronger domain [p11, p12, p21, p31]
   is stronger than all properties pj..pn-1 where j > i and n is the lenght of the list.
 -}
 prop_SortStrongerDesc :: Property
-prop_SortStrongerAsc =
+prop_SortStrongerDesc =
   forAll (choose (0, length sortedProbs-1)) $ \i ->
     forAll (choose (i, length sortedProbs-1)) $ \j ->
       let (p1, p2) = (sortedProbs !! i, sortedProbs !! j ) in
@@ -173,12 +167,12 @@ prop_SortStrongerAsc =
 {-
   Run this function to run the test
 -}
-sortedProbsTest = quickCheck prop_SortStrongerAsc
+sortedProbsTest = quickCheck prop_SortStrongerDesc
 
 {-
   -- TEST REPORT --
   The test passes, proving that the list of properties is sorted for the domain
-  [-10..10]. 
+  [-10..10].
 -}
 
 -- Assignment 4 --
