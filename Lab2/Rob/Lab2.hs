@@ -94,6 +94,21 @@ testTriangle (a:b:c:_) s = triangle a b c == s
 
 test2 = [x | x <- triangleTestData, uncurry testTriangle x]
 
+-- Assignment 3 --
+stronger, weaker :: [a] -> (a -> Bool) -> (a -> Bool) -> Bool
+stronger xs p q = forall xs (\ x -> p x --> q x)
+weaker   xs p q = stronger xs q p 
+
+domain = [(-10)..10]
+
+p1, p2, p3 :: Integral a => (a -> Bool)
+p1 = (\x -> even x && x > 3)
+p2 = (\x -> even x || x > 3)
+p3 = (\x -> (even x && x > 3) || even x)
+
+
+
+
 -- MAIN --
 main :: IO ()
 main = do
