@@ -22,7 +22,7 @@ probs n = do
 data Shape = NoTriangle | Equilateral
            | Isosceles  | Rectangular | Other deriving (Eq,Show)
 
--- Assignment 1: 90 minutes --
+-- Assignment 1 --
 
 -- true if n is between x and y
 between :: Ord a => a -> a -> a -> Bool
@@ -94,7 +94,7 @@ quartileTest = do
     - 96 out of 100 tests did pass
 -}
 
--- Assignment 2: 30 minutes --
+-- Assignment 2 --
 isTriangle :: Integer -> Integer -> Integer -> Bool
 isTriangle a b c =  a + b > c && b + c > a && a + c > b
 
@@ -131,7 +131,7 @@ testTriangles = foldr ((&&) . uncurry testTriangle) True
   triangles.
 -}
 
--- Assignment 3: 240 minutes (due to finding out how to test with functions)
+-- Assignment 3 --
 
 {-
   The properties not listed, are the same as properties already listed.
@@ -185,7 +185,7 @@ sortedProbsTest = quickCheck prop_SortStrongerDesc
   [-10..10].
 -}
 
--- Assignment 4: 90 minutes --
+-- Assignment 4 --
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation xs ys = elem xs (permutations ys)
 
@@ -225,7 +225,7 @@ permutationsTest xs = length xs < 10 ==>
   correct result.
 -}
 
--- Assignment 5: 110 minutes --
+-- Assignment 5 --
 isDerangement :: Eq a => [a] -> [a] -> Bool
 isDerangement [] [] = True
 isDerangement (x:xs) (y:ys)
@@ -286,7 +286,7 @@ isDerangementTest xs =  length xs < 10 && prop_minDistinctDer xs ==>
 -}
 
 
--- Assignment 6: 80 minutes--
+-- Assignment 6 --
 
 {-
   *Specification ROT13*
@@ -321,7 +321,7 @@ prop_decode s = s == (rot13 . rot13) s
   The properties hold for all 100 tests
 -}
 
--- Assignment 7: 70 minutes --
+-- Assignment 7 --
 -- Move the first 4 characters to the end of the String
 ibanMoveChars :: String -> String
 ibanMoveChars (a:b:c:d:xs) = xs ++ [a,b,c,d]
@@ -369,7 +369,7 @@ ibanTest n ((i,v) : xs)  = if iban i == v then do
 
 main :: IO ()
 main = do
-  putStrLn "-- Lab 2 Team 6 - Tjarco --"
+  putStrLn "-- Lab 2 Team 6 --"
   putStrLn "\nAssignment 1"
   putStrLn "Quartile distribution on 10000 random generated floats ranged (0, 1)"
   quartileTest
