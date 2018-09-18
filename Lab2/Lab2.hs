@@ -248,10 +248,17 @@ prop_containsElemDer xs ys = foldr ((&&) . countElem xs ys) True ys
 prop_sameLengthDer :: Eq a => [a] -> [a] -> Bool
 prop_sameLengthDer xs ys = length xs == length ys
 
--- All input has at least 2 distinct items
+
+count   :: Eq a => a -> [a] -> Int
+count x xs =  length (filter (==x) xs)
+
+-- All input has at least 2 distinct items, or 3 when the length is 3
 prop_minDistinctDer :: Eq a => [a] -> Bool
-prop_minDistinctDer xs = length xs > 1 &&
-  length (filter (head xs ==) xs) /= length xs
+prop_minDistinctDer xs
+  |length xs == 3 = count (head xs) xs < 2 && count  (xs !! 2) xs < 2
+  |length xs > 1 =  count (head xs) xs /= length xs
+  | otherwise = False
+
 
 -- Postcondigtion  of isDerangement
 -- isDerangement should be associative
