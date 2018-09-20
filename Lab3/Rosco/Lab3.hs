@@ -9,9 +9,7 @@ import Control.Monad
 
 import Lecture3
 
------------------------------------------------------------
-
--- Assignment 1 (1.5 hours)
+-- Assignment 1 (2 hours)
 tautology :: Form -> Bool
 tautology f = all (`evl` f) (allVals f)
 
@@ -24,7 +22,25 @@ entails f g = tautology (Impl f g)
 equiv :: Form -> Form -> Bool
 equiv f g = tautology (Equiv f g)
 
--- TODO Test and report
+testTautology :: Form -> Bool
+testTautology f = tautology (Dsj [f, Neg f]) && not (tautology (Cnj [f, Neg f]))
+
+testContradiction :: Form -> Bool
+testContradiction f = contradiction (Cnj [f, Neg f]) && not (contradiction (Dsj [f, Neg f]))
+
+testEntails :: Form -> Property
+testEntails f = not (contradiction f) ==> entails f (Dsj [f, Neg f]) && not (entails f (Cnj [f, Neg f]))
+
+testEquiv :: Form -> Bool
+testEquiv f = equiv f f && not (equiv f (Neg f))
+
+{-
+  We created tests using the formula generator. We created tautologies/contradictions
+  for these generated forms by doing Dsj [f, Neg f] or Cnj [f, Neg f] to test tautology
+  and contradiction. We tested entails by asserting `entails f True && not entails f False`.
+  We tested equiv by asserting `equiv f f && not equiv f !f`. We noticed that this test for
+  entails didn't work with contradictions, so we added not contracdiction as a precondition.
+-}
 
 -- Assignment 2 (30 minutes)
 testParse :: Form -> Bool
