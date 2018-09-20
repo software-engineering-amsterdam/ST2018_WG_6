@@ -9,7 +9,30 @@ import Control.Monad
 
 import Lecture3
 
--- Assignment 1 (1.5 hour)
+-- General
+createCnj :: Form -> Form -> Form
+createCnj first second = Cnj [first, second]
+
+createDsj :: Form -> Form -> Form
+createDsj first second = Dsj [first, second]
+
+formGen :: Int -> Gen Form
+formGen n
+  | n <= 0 = fmap Prop arbitrary
+  | n > 5 = formGen 5
+  | otherwise = oneof [
+      fmap Neg (formGen (n - 1)),
+      liftM2 createCnj (formGen (n - 1)) (formGen (n - 2)),
+      liftM2 createDsj (formGen (n - 1)) (formGen (n - 2)),
+      liftM2 Impl (formGen (n - 1)) (formGen (n - 2)),
+      liftM2 Equiv (formGen (n - 1)) (formGen (n - 2))]
+
+instance Arbitrary Form where
+  arbitrary = sized formGen
+
+-----------------------------------------------------------
+
+-- Assignment 1 (1.5 hours)
 tautology :: Form -> Bool
 tautology f = all (`evl` f) (allVals f)
 
@@ -24,21 +47,6 @@ equiv f g = tautology (Equiv f g)
 
 -- TODO Test and report
 
-formGen :: Int -> Gen Form
-formGen n
-  | n <= 0 = fmap Prop arbitrary
-  | n > 5 = formGen 5
-  | otherwise = oneof [
-      fmap Neg (formGen (n - 1)),
-      -- fmap Cnj [(formGen (n - 1)), (formGen (n - 2))],
-      -- fmap Dsj [(formGen (n - 1)), (formGen (n - 2))],
-      liftM2 Impl (formGen (n - 1)) (formGen (n - 2)),
-      liftM2 Equiv (formGen (n - 1)) (formGen (n - 2))]
-
-
-instance Arbitrary Form where
-  arbitrary = sized formGen
-
 -- Assignment 2 (30 minutes)
 testParse :: Form -> Bool
 testParse form = show (head $ parse $ show form) == show form
@@ -52,4 +60,3 @@ testParse form = show (head $ parse $ show form) == show form
 
   This test runs succesfully. (+++ OK, passed 100 tests.)
 -}
-
