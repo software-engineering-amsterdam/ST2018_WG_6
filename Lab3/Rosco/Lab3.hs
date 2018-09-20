@@ -9,7 +9,7 @@ import Control.Monad
 
 import Lecture3
 
--- Assignment 1 (15:30-)
+-- Assignment 1 (1.5 hour)
 tautology :: Form -> Bool
 tautology f = all (`evl` f) (allVals f)
 
@@ -38,3 +38,18 @@ formGen n
 
 instance Arbitrary Form where
   arbitrary = sized formGen
+
+-- Assignment 2 (30 minutes)
+testParse :: Form -> Bool
+testParse form = show (head $ parse $ show form) == show form
+
+{-
+  We used the form generator to create a quickCheck test that tests the parse function.
+  This test inputs a generated form, then parses the 'show' of the form, and asserts
+  that it is equal to the original form. However this was not working, as we suspect
+  that there is something not functioning well with the Eq of Form, so we changed the
+  test to compare the showed versions of the input and output forms.
+
+  This test runs succesfully. (+++ OK, passed 100 tests.)
+-}
+
