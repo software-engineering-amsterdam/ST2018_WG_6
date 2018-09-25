@@ -13,18 +13,42 @@ import Lecture3
     A formula is a contradiction when all valuations evaluate to false.
     Therefore, a contradiction is the opposite of a satisfiable function, thus a
     contradiction is the negation of the satisfiable function.
+
+    This function is tested by checking whether the conjunction: "f and not f" 
+    is always a contradiction and the disjunction: "f or not f" is never a 
+    contradiction.
+    When running the test function in quickCheck it proves to work.
+    
+    *Lab3> quickCheckResult testContradiction 
+    +++ OK, passed 100 tests.
+    Success {numTests = 100, labels = [], output = "+++ OK, passed 100 tests.\n"}
 -}
 contradiction :: Form -> Bool
 contradiction f = (not . satisfiable) f
+
+testContradiction :: Form -> Bool
+testContradiction f = contradiction (Cnj[f, Neg f]) && not (contradiction (Dsj[f, Neg f]))
 
 {-
     Tautology
     A formula is a tautology when all valuations evaluate to true. Therefore
     if we alter the satisfiable function by changing any -> all, we check if
     all valuations evaluate to true.
+
+    This function is tested in the same way as the contradiction the other way
+    around. Thus, the disjunction: "f or not f" should always be a tautology and
+    the conjunction: "f or not f" should never be a tautology.
+    When running the test function using quickCheck it proves to work.
+
+    *Lab3> quickCheckResult testTautology 
+    +++ OK, passed 100 tests.
+    Success {numTests = 100, labels = [], output = "+++ OK, passed 100 tests.\n"}
 -}
 tautology :: Form -> Bool
 tautology f = all (\v -> evl v f) (allVals f)
+
+testTautology :: Form -> Bool
+testTautology f = tautology (Dsj[f, Neg f]) && not (tautology (Cnj[f, Neg f]))
 
 {-
     Entailment
@@ -40,9 +64,25 @@ tautology f = all (\v -> evl v f) (allVals f)
     After finishing this code it was found out that logical entailment can also
     be found by checking whether formula p implies formula q.
 
+    The entailment function is tested by checking whether a function entails true and
+    doesn't entail false, given that the function is not contradiction.
+
+    When running this check on the function it came forward that the entails function is
+    not functioning properly. I couldn't see where it went wrong in a timely fashion.
+    The other formula, p entails q ::= p implies q, has been proven to work though.
+
 -}
 entails :: Form -> Form -> Bool
 entails p c = all (\v -> evl v c) (entailValuations p c)
+
+entails2 :: Form -> Form -> Bool
+entails2 p c = tautology (Impl p c)
+
+testEntails :: Form -> Bool
+testEntails f = not (contradiction f) --> entails f (Dsj[f, Neg f]) && not (entails f (Cnj[f, Neg f]))
+
+testEntails2 :: Form -> Bool
+testEntails2 f = not (contradiction f) --> entails2 f (Dsj[f, Neg f]) && not (entails2 f (Cnj[f, Neg f]))
 
 -- Chains the two filter functions below
 entailValuations :: Form -> Form -> [Valuation]
@@ -67,9 +107,20 @@ entailFilterConcl sub (x:xs)
     The equivalence of two formula is indicated by whether formula 1 implies formula 2
     in conjuction with formula 2 implying formula 1. This conjunction should be a tautology,
     thus each valuation of this formula should check true.
+
+    The equivalence function is tested by checking whether a function is equivalent to itself
+    and not to it's negation.
+    When performing the test with quickCheck it proves to work.
+
+    *Lab3> quickCheckResult testEquiv 
+    +++ OK, passed 100 tests.
+    Success {numTests = 100, labels = [], output = "+++ OK, passed 100 tests.\n"}
 -}
 equiv :: Form -> Form -> Bool
 equiv f1 f2 = tautology (Cnj [Impl f1 f2, Impl f2 f1])
+
+testEquiv :: Form -> Bool
+testEquiv f = equiv f f && not (equiv f (Neg f))
 
 ------------ Assignment 2 - (4h) ---------------
 -- Generate the conjunction p1 and p2
@@ -109,6 +160,10 @@ instance Arbitrary Form where
     is properly functioning its output should be the same formula as is put into it
     as a string. Therefore the following predicate should check true. The quickcheck
     test below uses the Form Generator to test various formulas against the parser test.
+
+    *Lab3> testParser 
+    +++ OK, passed 100 tests.
+    Success {numTests = 100, labels = [], output = "+++ OK, passed 100 tests.\n"}
 -}
 doTestParser :: Form -> Bool
 doTestParser f = (show . head. parse. show) f == show f
@@ -127,6 +182,14 @@ testParser = quickCheckResult(doTestParser)
     added.
     
 -}
+
+-- Filters the truth table of valuations by a specified value (True/False).
+filterTruthTable :: Bool -> Form -> [Valuation] -> [Valuation]
+filterTruthTable _ _ [] = []
+filterTruthTable b f (v:vs)
+    | (evl v f) == b = (v:filterTruthTable b f vs)
+    | otherwise = filterTruthTable b f vs
+
 val2Dsj :: Valuation -> [Form]
 val2Dsj [] = []
 val2Dsj ((i, b):vs)
