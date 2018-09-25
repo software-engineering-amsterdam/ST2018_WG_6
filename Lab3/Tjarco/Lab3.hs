@@ -171,6 +171,13 @@ preParse = pre . head . parse
 cnf :: Form -> Form
 cnf = association . until (isCnf . association) logicRules . pre
 
+
+-- Assignment 4 --
+{-
+  The formula generator is already defined for assignment one. Below are
+  the properties that can be used for testing the CNF algorithm
+-}
+
 prop_Temp_Cnf :: Form -> Bool
 prop_Temp_Cnf = isCnf . association . logicRules . logicRules . logicRules
   . logicRules . logicRules . logicRules . pre
@@ -212,4 +219,44 @@ prop_Cnf_Correct f =  (formLength . pre) f < 200 ==> isCnf $ cnf f
   Both of the properties on the CNF test succeed, which means that the algorithm
   is working for formulas to turn them into CNF, while still being logically
   equivalent to the original formula
+
+-}
+
+-- Assignment 5 --
+type Clause  = [Int]
+type Clauses = [Clause]
+
+formToClause :: Form -> Clause
+formToClause (Prop x) = [x]
+formToClause (Neg (Prop x)) = [-x]
+formToClause (Dsj x) = concatMap formToClause x
+
+{-
+  Change a form into clauses.
+
+  Precondition: the form is in CNF
+-}
+formToClauses :: Form -> Clauses
+formToClauses (Prop x) = [[x]]
+formToClauses (Neg (Prop x)) = [[-x]]
+formToClauses (Cnj x) = map formToClause x
+formToClauses (Dsj x) = map formToClause x
+
+clauseToForm :: Clause -> Form
+clauseToForm x = Dsj $ map (\x -> if x < 0 then Neg (Prop (-x)) else Prop x) x
+
+clausesToForm :: Clauses -> Form
+clausesToForm x = Cnj $ map clauseToForm x
+
+prop_Clauses_reverse_equiv :: Form -> Property
+prop_Clauses_reverse_equiv f =
+  (formLength . pre) f < 200 ==>
+  clausesToForm (formToClauses (cnf f)) `equiv` f
+
+{-
+  TEST Report
+
+  The property for testing whether applying the formToClauses function combined
+  with the clausesToForm function will result in the same form, passes all tests
+  in quickcheck.
 -}
