@@ -64,26 +64,26 @@ prop_Parse f = show (head $ parse (show f)) == show f
   Make all conjunctions and disjunctions binary by applying the association
   rules. That is, Cnj [p, q, r] <=> Cnj [Cnj [p,q] r]
 -}
-flatten :: Form -> Form
-flatten (Cnj (x:y:z:xs)) = Cnj [x, flatten (Cnj (y:z:xs))]
-flatten (Cnj (x:y:xs)) = Cnj [flatten x, flatten y]
-flatten (Dsj (x:y:z:xs)) = Dsj [x, flatten (Dsj (y:z:xs))]
-flatten (Dsj (x:y:xs)) = Dsj [flatten x, flatten y]
-flatten x = x
+associate :: Form -> Form
+associate (Cnj (x:y:z:xs)) = Cnj [x, associate (Cnj (y:z:xs))]
+associate (Cnj (x:y:xs)) = Cnj [associate x, associate y]
+associate (Dsj (x:y:z:xs)) = Dsj [x, associate (Dsj (y:z:xs))]
+associate (Dsj (x:y:xs)) = Dsj [associate x, associate y]
+associate x = x
 
 {-
   Remove redudent Cnj and Dsj. Example: Dsj [p, Dsj (q, r)] becomes Dsj [p, q, r]
   Preconditions: Arrowfree and Negated normal form
 -}
-association :: Form -> Form
-association (Prop x) = Prop x
-association (Neg (Prop x)) = Neg (Prop x)
-association (Cnj x) = Cnj $ concatMap liftInnerCnj x
-association (Dsj x) = Dsj $ concatMap liftInnerDsj x
+flatten :: Form -> Form
+flatten (Prop x) = Prop x
+flatten (Neg (Prop x)) = Neg (Prop x)
+flatten (Cnj x) = Cnj $ concatMap liftInnerCnj x
+flatten (Dsj x) = Dsj $ concatMap liftInnerDsj x
 
 liftInnerCnj :: Form -> [Form]
 liftInnerCnj (Cnj x) = concatMap liftInnerCnj x
-liftInnerCnj (Dsj x) = [association (Dsj (concatMap liftInnerDsj x))]
+liftInnerCnj (Dsj x) = [flatten (Dsj (concatMap liftInnerDsj x))]
 liftInnerCnj x = [x]
 
 liftInnerDsj :: Form -> [Form]
@@ -110,14 +110,14 @@ logicRules (Dsj [x, Cnj [y, z]]) =  logicRules (Cnj [
   Dsj [x, y],
   Dsj [x, z]])
 logicRules (Dsj [Cnj y, x]) = logicRules $ Dsj [x, Cnj y] -- Flip to match rule
-logicRules (Dsj x) = flatten $ Dsj (map logicRules x)
+logicRules (Dsj x) = associate $ Dsj (map logicRules x)
 
 -- When we have reached an outer conjunction, make inner normal form
-logicRules (Cnj x) = flatten $ Cnj (map innerRules x)
+logicRules (Cnj x) = associate $ Cnj (map innerRules x)
 
 {-
   This function creates the inner part of the CNF. It lifts all conjunctions
-  such that by means of association they will be outer conjunctions in the end.
+  such that by means of flatten they will be outer conjunctions in the end.
 -}
 innerRules :: Form -> Form
 innerRules (Prop x) = Prop x
@@ -156,7 +156,7 @@ isCnf x = isLiteral x
   cnf algorithm
 -}
 pre :: Form -> Form
-pre = flatten . nnf . arrowfree
+pre = associate . nnf . arrowfree
 
 {-
   Helper function to pre-parse a String
@@ -169,7 +169,7 @@ preParse = pre . head . parse
   CNF.
 -}
 cnf :: Form -> Form
-cnf = association . until (isCnf . association) logicRules . pre
+cnf = flatten . until (isCnf . flatten) logicRules . pre
 
 
 -- Assignment 4 --
@@ -179,17 +179,17 @@ cnf = association . until (isCnf . association) logicRules . pre
 -}
 
 prop_Temp_Cnf :: Form -> Bool
-prop_Temp_Cnf = isCnf . association . logicRules . logicRules . logicRules
+prop_Temp_Cnf = isCnf . flatten . logicRules . logicRules . logicRules
   . logicRules . logicRules . logicRules . pre
 
 prop_Flatten :: Form -> Bool
-prop_Flatten f = flatten f `equiv` f
+prop_Flatten f = associate f `equiv` f
 
 prop_Pre :: Form -> Bool
 prop_Pre f = pre f `equiv` f
 
 prop_Association :: Form -> Bool
-prop_Association f = (association . pre) f `equiv` f
+prop_Association f = (flatten . pre) f `equiv` f
 
 {-
   Calculate the length of a formula
