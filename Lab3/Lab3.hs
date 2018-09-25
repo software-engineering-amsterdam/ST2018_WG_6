@@ -149,7 +149,7 @@ createDsj first second = Dsj [first, second]
 
 formGen :: Int -> Gen Form
 formGen n
-  | n <= 0 = fmap Prop (choose (1,3))
+  | n <= 0 = fmap Prop (choose (1,200))
   | n > 5 = formGen 5
   | otherwise = oneof [
       fmap Neg (formGen (n - 1)),                         -- Negation
@@ -228,7 +228,7 @@ formLength (Equiv x y) = 1 + formLength x + formLength y
   200 to be able to run the test in reasonable time.
 -}
 prop_Cnf_Equiv :: Form -> Property
-prop_Cnf_Equiv f = (formLength . pre) f < 200 ==> cnf f `equiv` f
+prop_Cnf_Equiv f = (formLength . pre) f < 100 ==> cnf f `equiv` f
 
 prop_Cnf_Correct :: Form -> Property
 prop_Cnf_Correct f =  (formLength . pre) f < 200 ==> isCnf $ cnf f
@@ -251,7 +251,7 @@ formToClauses :: Form -> Clauses
 formToClauses (Prop x) = [[x]]
 formToClauses (Neg (Prop x)) = [[-x]]
 formToClauses (Cnj x) = map formToClause x
-formToClauses (Dsj x) = map formToClause x
+formToClauses (Dsj x) = [concatMap formToClause x]
 
 clauseToForm :: Clause -> Form
 clauseToForm x = Dsj $ map (\x -> if x < 0 then Neg (Prop (-x)) else Prop x) x
@@ -259,13 +259,35 @@ clauseToForm x = Dsj $ map (\x -> if x < 0 then Neg (Prop (-x)) else Prop x) x
 clausesToForm :: Clauses -> Form
 clausesToForm x = Cnj $ map clauseToForm x
 
-prop_Clauses_reverse_equiv :: Form -> Bool
-prop_Clauses_reverse_equiv f = clausesToForm (formToClauses (cnf f)) `equiv` f
+prop_Clauses_reverse_equiv :: Form -> Property
+prop_Clauses_reverse_equiv f =
+  (formLength . pre) f < 200 ==>
+  clausesToForm (formToClauses (cnf f)) `equiv` f
 
 {-
   TEST Report
 
   The property for testing whether applying the formToClauses function combined
   with the clausesToForm function will result in the same form, passes all tests
-  in quickcheck.
+  in quickCheck.
 -}
+
+main :: IO ()
+main = do
+  putStrLn "-- Lab 3 Team 6 --"
+  putStrLn "\nAssignment 1"
+  putStrLn "Testing tautology, contradiction, entailment and equivalence"
+  quickCheck testTautology
+  quickCheck testContradiction
+  quickCheck testEntails
+  quickCheck testEquiv
+  putStrLn "\nAssignment 2"
+  putStrLn "Testing the parse function"
+  quickCheck testParse
+  putStrLn "\nAssignment 3 and 4"
+  putStrLn "Testing the CNF implementation with two tests"
+  quickCheck prop_Cnf_Equiv
+  quickCheck prop_Cnf_Correct
+  putStrLn "\nAssignment 5"
+  putStrLn "Testing clauses implementation"
+  quickCheck prop_Clauses_reverse_equiv

@@ -27,7 +27,7 @@ disjList f1 f2 = Dsj [f1, f2]
 
 formGen :: Int -> Gen Form
 formGen n
-  | n <= 0 = fmap Prop (choose (1,3))
+  | n <= 0 = fmap Prop (choose (1,10))
   | n > 5 = formGen 5
   | otherwise = oneof [
       fmap Neg (formGen (n - 1)),                         -- Negation
