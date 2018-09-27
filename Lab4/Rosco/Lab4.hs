@@ -1,6 +1,8 @@
 module Lab4 where
 
 import Data.List
+import Data.Set (fromList, toList)
+import Data.Tuple (swap)
 import Data.Char
 import Test.QuickCheck
 import Control.Monad
@@ -46,3 +48,12 @@ testSetUnion a b = subSet a u && subSet b u where u = setUnion a b
 
 testSetDifference :: Ord a => Set a -> Set a -> Bool
 testSetDifference (Set a) (Set b) = all (not . (`elem` b)) d where (Set d) = setDifference (Set a) (Set b)
+
+-- Assignment 5 (15 minutes)
+type Rel a = [(a, a)]
+
+reverseRel :: Ord a => Rel a -> Rel a
+reverseRel = map swap
+
+symClos :: Ord a => Rel a -> Rel a
+symClos r = toList . fromList $ r ++ reverseRel r
