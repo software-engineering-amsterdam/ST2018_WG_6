@@ -56,4 +56,16 @@ reverseRel :: Ord a => Rel a -> Rel a
 reverseRel = map swap
 
 symClos :: Ord a => Rel a -> Rel a
-symClos r = toList . fromList $ r ++ reverseRel r
+symClos r = nub $ r ++ reverseRel r
+
+-- Assignment 6 (45 minutes)
+infixr 5 @@
+
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
+
+-- [(1,2),(2,3),(3,4)] should give  [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
+trClos :: Ord a => Rel a -> Rel a
+trClos = sort . until (\ s -> s == f s) f where f r = r `union` (r @@ r)
+
+testrel = [(1,2),(2,3),(3,4)]
