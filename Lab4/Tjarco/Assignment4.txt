@@ -1,0 +1,16 @@
+Assignment 4: Chapter 5 of Haskell Road
+
+Things that are unclear:
+  - The notion of identity on a relation. As I understand it, it is the relation of
+    each element in the set with itself.
+    For example: A = {1,2,3} ∆A = {(1,1), (2,2), (3,3)}. I do not understand how,
+    in the example of ∆R on R^2, the graph is empty
+
+  - The proof of why R+ is the transitive closure is still a bin unclear. How is
+    it that we can say that k+m = R+? It would work for this example, but for
+    another example it might n+o != k+m. So shouldn't it be R^(k+m) ⊆ R+?
+
+  - Equivalence classes are defined from an Equivalence Relation R on A, where for
+    some element a the Equivalence class consists of the elements where there is a
+    relation from to a. It is unclear to my why the only Equivalence class of A^2
+    is A itself.

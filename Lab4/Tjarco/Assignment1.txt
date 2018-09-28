@@ -1,0 +1,13 @@
+Assignment 1: Chapter 4 Haskell road.
+
+List of things that are a bit unclear :
+  - Extensionality. It is not really explained and wikipedia defines it as
+  "principles that judge properties to be equal if they have the same external
+  properties". It is unclear what is meant by external properties.
+  - Why is the Num class in Haskell a subclass of Eq and not a subclass of Ord?
+    Are there numbers that are not orderable?
+  - The proof for why the empty set is in all Sets is unclear to me. I don't
+    understand the step:
+    "Then ⊥ (contradiction with the fact that ∅ has no members). Therefore x ∈ A."
+    Why is it that when we have a contradiction on x ∈ ∅ we can conclude x ∈ A
+    for any arbitrary x?
