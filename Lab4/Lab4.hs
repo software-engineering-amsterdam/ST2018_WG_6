@@ -175,7 +175,7 @@ test_symAndTransClosures = do
   symmetric closure of the transitive closure
 -}
 prop_symClosTrClos :: Ord a => Rel a -> Bool
-prop_symClosTrClos r = symClos (trClos r) == trClos (symClos r)
+prop_symClosTrClos r = (symClos . trClos) r == (trClos . symClos) r
 
 test_symClosTrClosEquality :: IO ()
 test_symClosTrClosEquality = do
