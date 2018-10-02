@@ -36,10 +36,11 @@ genRandomSet = do
 {-
     A quickcheck implementation for generating arbitrary Sets.
 -}
+setGen :: (Arbitrary a, Ord a) => Int -> Gen (Set a)
+setGen n = fmap list2set arbitrary
+
 instance (Arbitrary a, Ord a) => Arbitrary (Set a) where
-  arbitrary = do
-    intList <- arbitrary
-    return (list2set intList)
+  arbitrary = sized setGen
 
 genRandomSet' :: IO (Set Int)
 genRandomSet' = generate arbitrary :: IO (Set Int)
@@ -49,8 +50,7 @@ intersection :: Eq a => Set a -> Set a -> Set a
 intersection (Set xs) (Set ys) = Set (xs `intersect` ys)
 
 union' :: Ord a => Set a -> Set a -> Set a
-union' (Set []) set2 = set2
-union' (Set (x:xs)) set2 = insertSet x (Set xs `union'` set2)
+union' (Set xs) (Set ys) = list2set (xs `union` ys)
 
 difference :: Ord a => Set a -> Set a -> Set a
 difference (Set set1) set2 = Set [x | x <- set1, not (x `inSet` set2)]
