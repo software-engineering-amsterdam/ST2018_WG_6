@@ -105,6 +105,25 @@ subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
 
+---------------- NRC BLOCKS -----------------
+
+nrcBlocks :: [[Int]]
+nrcBlocks = [[2..4], [6..8]]
+
+bl' :: Int -> [Int]
+bl' x = concat $ filter (elem x) nrcBlocks
+
+subGrid' :: Sudoku -> (Row,Column) -> [Value]
+subGrid' s (r,c) =
+    [s (r',c')| r' <- bl' r, c' <- bl' c]
+
+subgridInjective' :: Sudoku -> (Row, Column) -> Bool
+subgridInjective' s (r,c) = injective vs where
+    vs = filter (/=0) (subGrid' s (r,c))
+
+---------------------------------------------
+
+-- Extend on consistent?
 consistent :: Sudoku -> Bool
 consistent s = and $
                [ rowInjective s r |  r <- positions ]
@@ -113,6 +132,9 @@ consistent s = and $
                 ++
                [ subgridInjective s (r,c) | 
                     r <- [1,4,7], c <- [1,4,7]]
+                ++
+               [ subgridInjective' s (r,c) |
+                    r <- [2,6], c <- [2,6]]
 
 extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
 extend = update
@@ -202,6 +224,42 @@ solveAndShow gr = solveShowNs (initNode gr)
 
 solveShowNs :: [Node] -> IO[()]
 solveShowNs = sequence . fmap showNode . solveNs
+
+-- Test NRC Sudoku
+exampleNRC :: Grid
+exampleNRC = [[6,2,1,3,9,7,4,5,8],
+               [0,0,0,0,0,0,0,7,0],
+               [0,0,0,0,0,2,3,0,0],
+               [0,0,0,6,3,0,5,0,0],
+               [7,5,0,0,4,0,8,0,0],
+               [0,0,0,0,0,0,0,4,0],
+               [0,0,0,5,0,0,0,0,0],
+               [9,1,0,7,0,0,0,6,0],
+               [0,0,7,0,0,0,0,0,0]]
+
+-- Faulty NRC Sudoku
+exampleNRCF :: Grid
+exampleNRCF = [[6,2,1,3,9,7,4,5,8],
+               [0,6,0,0,0,0,0,7,0],
+               [0,0,0,0,0,2,3,0,0],
+               [0,0,0,6,3,0,5,0,0],
+               [7,5,0,0,4,0,8,0,0],
+               [0,0,0,0,0,0,0,4,0],
+               [0,0,0,5,0,0,0,0,0],
+               [9,1,0,7,0,0,0,6,0],
+               [0,0,7,0,0,0,0,0,0]]
+
+-- Solved NRC Sudoku
+exampleNRCS :: Grid
+exampleNRCS = [[6,2,1,3,9,7,4,5,8],
+               [8,3,9,1,5,4,6,7,2],
+               [4,7,5,8,6,2,3,1,9],
+               [1,4,2,6,3,8,5,9,7],
+               [7,5,6,9,4,1,8,2,3],
+               [3,9,8,2,7,5,1,4,6],
+               [2,6,3,5,1,9,7,8,4],
+               [9,1,4,7,8,3,2,6,5],
+               [5,8,7,4,2,6,9,3,1]]
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
