@@ -394,11 +394,11 @@ uniqueSol node = singleton (solveNs [node]) where
 -- Check whether a sudoku is minimal
 
 testGen :: IO Bool
-testGen = fmap (\n -> isMinimal n && uniqueSol n) (genProblem =<< genRandomSudoku)
+testGen = fmap (isMinimal) (genProblem =<< genRandomSudoku)
 
 isMinimal :: Node -> Bool
 isMinimal (s,con) = 
-  all (\(r,c) -> not (uniqueSol ((eraseS s (r,c)),con))) (filledPositions s)
+  all (\(r,c) -> not (uniqueSol (eraseN (s,con) (r,c)))) (filledPositions s) 
   && uniqueSol (s,con)
 
 -----------------------------------
