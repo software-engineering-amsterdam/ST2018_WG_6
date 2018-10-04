@@ -115,3 +115,52 @@ solveNtimes n a = do
 
 main = do
     time (Lecture5.solveAndShow Lecture5.exampleNRC) (Lecture5Refactored.solveAndShow Lecture5Refactored.exampleNRC)
+
+{-
+    Assignment 3 (2h)
+    
+    For this assignment a function has been created that
+    checks whether a problem is a minimal problem, thus
+    having just one solution, and multiples when removing
+    one number from the grid.
+
+    In order to check this two tests are performed. First it
+    is tested whether the sudoku has just one solution. Then
+    all filled squares are deleted in turn and it is determined
+    whether this new problem also has just 1 solution. If this is
+    the case the first sudoku is apparently not the minimal problem.
+
+    -----------------------------------------------------------------
+
+    The following code was added to Lecture5.hs:
+
+    testMinimalGrid :: Grid -> Bool
+    testMinimalGrid g = isMinimal ((initNode g) !! 0 )
+
+    testMinimalGen :: IO Bool
+    testMinimalGen = fmap (isMinimal) (genProblem =<< genRandomSudoku)
+
+    isMinimal :: Node -> Bool
+    isMinimal (s,con) = 
+    all (\(r,c) -> not (uniqueSol (eraseN (s,con) (r,c)))) (filledPositions s) 
+    && uniqueSol (s,con)
+
+    -----------------------------------------------------------------
+
+    When testing this with the NRC example:
+
+    *Lecture5> testMinimalGrid exampleNRC
+    False
+
+    Which checks out as there is a more minimal version of this problem
+
+    -----------------------------------------------------------------
+
+    When testing this with the generator:
+
+    *Lecture5> testMinimalGen
+    True
+
+    Which also checks out as the problem builder only generates problems
+    which are minimal.
+-}

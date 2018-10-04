@@ -393,8 +393,11 @@ uniqueSol node = singleton (solveNs [node]) where
 
 -- Check whether a sudoku is minimal
 
-testGen :: IO Bool
-testGen = fmap (isMinimal) (genProblem =<< genRandomSudoku)
+testMinimalGrid :: Grid -> Bool
+testMinimalGrid g = isMinimal ((initNode g) !! 0 )
+
+testMinimalGen :: IO Bool
+testMinimalGen = fmap (isMinimal) (genProblem =<< genRandomSudoku)
 
 isMinimal :: Node -> Bool
 isMinimal (s,con) = 
@@ -402,6 +405,30 @@ isMinimal (s,con) =
   && uniqueSol (s,con)
 
 -----------------------------------
+-- Generate a third square empty sudoku
+allBlocks = [[(r,c) | r <- b1, c <- b2] | b1 <- blocks, b2 <- blocks]
+
+deleteBlocks :: [[(Row,Column)]] -> IO [(Row,Column)]
+deleteBlocks b
+  | length b > 3 = do
+    rblock <- fmap head (getRandomItem b)
+    (deleteBlocks . (delete rblock)) b
+  | otherwise = do
+    return (intercalate [] b)
+
+test3BProblem = do
+  s <- genRandomSudoku
+  ns <- gen3BProblem s
+  showNode ns
+
+gen3BProblem :: Node -> IO Node
+gen3BProblem n = do 
+  dblock <- deleteBlocks allBlocks
+  ns <- fmap (map (\p -> eraseN n p)) (deleteBlocks allBlocks)
+  ys <- randomize ((intercalate [] allBlocks)\\dblock)
+  return (minimalize (head ns) ys)
+
+-----------------------------------------
 
 eraseS :: Sudoku -> (Row,Column) -> Sudoku
 eraseS s (r,c) (x,y) | (r,c) == (x,y) = 0
