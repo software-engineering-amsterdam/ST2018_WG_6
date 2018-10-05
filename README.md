@@ -2,4 +2,4 @@
 
 How to compile (change N to the current Lab number):
 
-N=1; ghc -main-is Lab$N -o Lab$N Lab$N.hs && rm Lab$N.{hi,o}
+N=1; ghc -main-is Lab$N -o Lab$N Lab$N.hs && rm *.{hi,o}
