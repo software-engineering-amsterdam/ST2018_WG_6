@@ -3,6 +3,7 @@ module Lab5 where
 import Data.List
 import Lecture5
 import Lecture5Refactor (solveAndShow, Position)
+import Lecture5Orig (genRandomSudokuOrig)
 import System.CPUTime
 import Text.Printf
 import Control.Applicative
@@ -156,5 +157,80 @@ genRandomNrcProblem = do
 
 randomNrcProblem =  genRandomNrcProblem >>= showNode
 
+-- Assignment 7: Bonus.
+averageFilledPos :: Int -> Int -> Int -> IO Node -> IO Float
+averageFilledPos n c sumPos generator = if n == c then
+  return $ fromIntegral sumPos / fromIntegral n
+    else do
+      s <- generator
+      p <- genProblem s
+      averageFilledPos n (c+1) (sumPos + (length . filledPositions . fst) p) generator
+
+averageNormalS = averageFilledPos 10 0 0 genRandomSudokuOrig
+averageNRCS = averageFilledPos 10 0 0 genRandomNRCSudoku
+
+hintsComparison :: IO ()
+hintsComparison = do
+  putStrLn "Average amount of hints for normal Sudoku:"
+  a <- averageNormalS
+  print a
+  putStrLn "\nAverage amount of hints for NRC Sudoku:"
+  aNRC <- averageNRCS
+  print aNRC
+
+{-
+  Test Report
+
+  We tested the amount of hints by generating multiple minimal problems of both
+  the normal sudoku and the NRC sudoku. Running the test multiple times resulted
+  in the following data:
+
+  Average amount of hints for normal Sudoku:
+  22.8
+
+  Average amount of hints for NRC Sudoku:
+  17.5
+
+  ---
+
+  Average amount of hints for normal Sudoku:
+  26.0
+
+  Average amount of hints for NRC Sudoku:
+  17.8
+
+  ---
+
+  Average amount of hints for normal Sudoku:
+  23.8
+
+  Average amount of hints for NRC Sudoku:
+  16.2
+
+  We can therefore conclude that the NRC adaption needs fewer hints than the
+  original Sudoku problem
+
+-}
+
 main :: IO ()
-main = genEmptyBlocksProblem 6 >>= showNode
+main = do
+  putStrLn "----- Lab 5 -- Team 6 -----"
+  putStrLn "--- Assignment 1 ---"
+  putStrLn "Testing the NRC addaption"
+  print testNrc
+  putStrLn "\n--- Assignment 2 ---"
+  time 5
+  putStrLn "\n--- Assignment 3 ---"
+  putStrLn "Testing if genProblem generates minimal problems"
+  testMinimal
+  putStrLn "\n--- Assignment 4 ---"
+  putStrLn "Generating Sudoku's with 3, 4 and 5 random empty blocks"
+  gen3EmptyBlocksProblem >>= showNode
+  gen4EmptyBlocksProblem >>= showNode
+  gen5EmptyBlocksProblem >>= showNode
+  putStrLn "\n--- Assignment 5 ---"
+  putStrLn "Generating a random NRC problem"
+  randomNrcProblem
+  putStrLn "\n--- Assignment 7 - bonus ---"
+  putStrLn "Comparing average amount of hints for Sudokus and the NRC addaption"
+  hintsComparison

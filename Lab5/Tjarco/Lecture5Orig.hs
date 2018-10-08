@@ -1,5 +1,5 @@
 
-module Lecture5
+module Lecture5Orig
 
 where
 
@@ -113,9 +113,6 @@ consistent s = and $
                 ++
                [ subgridInjective s (r,c) |
                     r <- [1,4,7], c <- [1,4,7]]
-                ++
-               [ subgridInjectiveNrc s (r,c) |
-                    r <- [2,6], c <- [2,6]]
 
 extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
 extend = update
@@ -146,8 +143,6 @@ prune (r,c,v) ((x,y,zs):rest)
   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y) =
-        (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblockNrc (r,c) (x,y)=
         (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
@@ -263,50 +258,6 @@ example5 = [[1,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,8,0],
             [0,0,0,0,0,0,0,0,9]]
 
----- NRC variation ----
-blocksNrc :: [[Int]]
-blocksNrc = [[2..4], [6..8]]
-
-belongsNrc :: Int -> [Int]
-belongsNrc x = concat $ filter (elem x) blocksNrc
-
-subGridNrc :: Sudoku -> (Row, Column) -> [Value]
-subGridNrc s (r, c) = [s (r', c') | r' <- belongsNrc r, c' <- belongsNrc c]
-
-freeInSubgridNrc :: Sudoku -> (Row, Column) -> [Value]
-freeInSubgridNrc s (r, c)= freeInSeq (subGridNrc s (r, c))
-
-subgridInjectiveNrc :: Sudoku -> (Row,Column) -> Bool
-subgridInjectiveNrc s (r,c) = injective vs where
-   vs = filter (/= 0) (subGridNrc s (r,c))
-
-sameblockNrc :: (Row,Column) -> (Row,Column) -> Bool
-sameblockNrc (r,c) (x,y) = belongsNrc r == belongsNrc x &&
-  belongsNrc c == belongsNrc y
-
-exampleNrc :: Grid
-exampleNrc = [[6,2,1,3,9,7,4,5,8],
-              [0,0,0,0,0,0,0,7,0],
-              [0,0,0,0,0,2,3,0,0],
-              [0,0,0,6,3,0,5,0,0],
-              [7,5,0,0,4,0,8,0,0],
-              [0,0,0,0,0,0,0,4,0],
-              [0,0,0,5,0,0,0,0,0],
-              [9,1,0,7,0,0,0,6,0],
-              [0,0,7,0,0,0,0,0,0]]
-
-exampleNRCSolved :: Grid
-exampleNRCSolved = [[6,2,1,3,9,7,4,5,8],
-                    [8,3,9,1,5,4,6,7,2],
-                    [4,7,5,8,6,2,3,1,9],
-                    [1,4,2,6,3,8,5,9,7],
-                    [7,5,6,9,4,1,8,2,3],
-                    [3,9,8,2,7,5,1,4,6],
-                    [2,6,3,5,1,9,7,8,4],
-                    [9,1,4,7,8,3,2,6,5],
-                    [5,8,7,4,2,6,9,3,1]]
-
----- End NRC Variation ----
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
 
@@ -361,11 +312,11 @@ rsearch succ goal ionodes =
                              rsearch
                                succ goal (return $ tail xs)
 
-genRandomSudoku :: IO Node
-genRandomSudoku = do [r] <- rsolveNs [emptyN]
-                     return r
+genRandomSudokuOrig :: IO Node
+genRandomSudokuOrig = do [r] <- rsolveNs [emptyN]
+                         return r
 
-randomS = genRandomSudoku >>= showNode
+randomS = genRandomSudokuOrig >>= showNode
 
 uniqueSol :: Node -> Bool
 uniqueSol node = singleton (solveNs [node]) where
@@ -396,8 +347,8 @@ genProblem n = do ys <- randomize xs
                   return (minimalize n ys)
    where xs = filledPositions (fst n)
 
--- main :: IO ()
--- main = do [r] <- rsolveNs [emptyN]
---           showNode r
---           s  <- genProblem r
---           showNode s
+main :: IO ()
+main = do [r] <- rsolveNs [emptyN]
+          showNode r
+          s  <- genProblem r
+          showNode s
