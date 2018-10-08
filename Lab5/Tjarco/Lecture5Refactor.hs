@@ -52,7 +52,7 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow gs; showRow hs; showRow is
     putStrLn ("+-------+-------+-------+")
 
-type Sudoku = (Row,Column) -> Value
+type Sudoku = Position -> Value
 
 sud2grid :: Sudoku -> Grid
 sud2grid s =
@@ -61,7 +61,7 @@ sud2grid s =
 grid2sud :: Grid -> Sudoku
 grid2sud gr = \ (r,c) -> pos gr (r,c)
   where
-  pos :: [[a]] -> (Row,Column) -> a
+  pos :: [[a]] -> Position -> a
   pos gr (r,c) = (gr !! (r-1)) !! (c-1)
 
 showSudoku :: Sudoku -> IO()
@@ -70,7 +70,7 @@ showSudoku = showGrid . sud2grid
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
+subGrid :: Sudoku -> Position -> [Value]
 subGrid s (r,c) =
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
@@ -117,7 +117,7 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
+subgridInjective :: Sudoku -> Position -> Bool
 subgridInjective s (r,c) = injective vs where
    vs = filter (/= 0) (subGrid s (r,c))
 
@@ -133,7 +133,7 @@ consistent s = and $
                [ subgridInjectiveNrc s (r,c) |
                     r <- [2,6], c <- [2,6]]
 
-extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
+extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
 
 update :: Eq a => (a -> b) -> (a,b) -> a -> b

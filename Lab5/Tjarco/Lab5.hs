@@ -80,17 +80,28 @@ testMinimal = do
 
 -- Assignment 4
 
-{- Returns all positions belonging to the block of the argument position-}
+{-
+  Returns all positions belonging to the block of the argument position
+-}
 posForBlock :: Position -> [Position]
 posForBlock (r,c) = liftA2 (,) (bl r) (bl c)
 
+{-
+  Erase all the positions given from the Node. Used to remove blocks.
+-}
 eraseAtPositions :: Node -> [Position] -> Node
 eraseAtPositions = foldl eraseN
 
--- Return all the blocks, given by all posibile positions from the Rows and Colums
+{-
+  Return all the blocks, given by all posibile positions from the Rows and
+  Colums
+-}
 allBlocks :: [Row] -> [Column] -> IO [[Position]]
 allBlocks r c = randomize (map posForBlock (liftA2 (,) r c))
 
+{-
+  First, get n random blocks. Then erase those n random blocks from the Node
+-}
 eraseRandomBlocks :: Int -> Node -> IO Node
 eraseRandomBlocks n node = do
     randomBlocks <- allBlocks [1,4,7] [1,4,7]
@@ -106,8 +117,7 @@ genEmptyBlocksProblem n = do
   if uniqueSol problem then return problem
   else genEmptyBlocksProblem n
 
-gen3EmptyBlocksProblem, gen4EmptyBlocksProblem ,gen5EmptyBlocksProblem ::
-  Int -> IO Node
+gen3EmptyBlocksProblem, gen4EmptyBlocksProblem ,gen5EmptyBlocksProblem :: IO Node
 gen3EmptyBlocksProblem = genEmptyBlocksProblem 3
 gen4EmptyBlocksProblem = genEmptyBlocksProblem 4
 gen5EmptyBlocksProblem = genEmptyBlocksProblem 5
@@ -116,8 +126,35 @@ gen5EmptyBlocksProblem = genEmptyBlocksProblem 5
   In conclusion, it is possible to generate this kind of problems where 3, 4 or 5
   blocks are removed. For more than 6, the function does not finish. Therefore
   we conclude that it is not possible to generate empty blocks problems with more
-  than 5 empty blocks. 
+  than 5 empty blocks.
 -}
 
+-- Assignment 5:  45 minutes
+freeAtPosNrc :: Sudoku -> (Row,Column) -> [Value]
+freeAtPosNrc s (r,c) = freeAtPos s (r,c) `intersect` freeInSubgridNrc s (r,c)
+
+constraintsNrc :: Sudoku -> [Constraint]
+constraintsNrc s = sortBy length3rd
+    [(r,c, freeAtPosNrc s (r,c)) |
+                       (r,c) <- openPositions s ]
+
+emptyNodeNrc :: Node
+emptyNodeNrc = (const 0,constraintsNrc (const 0))
+
+genRandomNRCSudoku :: IO Node
+genRandomNRCSudoku = do
+  [r] <- rsolveNs [emptyNodeNrc]
+  return r
+
+randomNrcS :: IO ()
+randomNrcS = genRandomNRCSudoku >>= showNode
+
+genRandomNrcProblem :: IO Node
+genRandomNrcProblem = do
+  s <- genRandomNRCSudoku
+  genProblem s
+
+randomNrcProblem =  genRandomNrcProblem >>= showNode
+
 main :: IO ()
-main = testMinimal
+main = genEmptyBlocksProblem 6 >>= showNode

@@ -89,7 +89,6 @@ freeAtPos s (r,c) =
   (freeInRow s r)
    `intersect` (freeInColumn s c)
    `intersect` (freeInSubgrid s (r,c))
-   `intersect` (freeInSubgridNrc s (r,c))
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
