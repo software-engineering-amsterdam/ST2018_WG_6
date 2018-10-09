@@ -1,19 +1,21 @@
 
-module Lecture5
+module Lecture5_refactored
 
-where 
+where
 
 import Data.List
 import System.Random
 
-type Row    = Int 
-type Column = Int 
+type Row    = Int
+type Column = Int
 type Value  = Int
 type Grid   = [[Value]]
+type Position = (Row,Column)
+type Constrnt = [[Position]]
 
 positions, values :: [Int]
 positions = [1..9]
-values    = [1..9] 
+values    = [1..9]
 
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
@@ -28,7 +30,7 @@ showVal 0 = " "
 showVal d = show d
 
 showRow :: [Value] -> IO()
-showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
+showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] =
  do  putChar '|'         ; putChar ' '
      putStr (showVal a1) ; putChar ' '
      putStr (showVal a2) ; putChar ' '
@@ -53,16 +55,16 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow gs; showRow hs; showRow is
     putStrLn ("+-------+-------+-------+")
 
-type Sudoku = (Row,Column) -> Value
+type Sudoku = Position -> Value
 
 sud2grid :: Sudoku -> Grid
-sud2grid s = 
-  [ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ] 
+sud2grid s =
+  [ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ]
 
 grid2sud :: Grid -> Sudoku
-grid2sud gr = \ (r,c) -> pos gr (r,c) 
-  where 
-  pos :: [[a]] -> (Row,Column) -> a 
+grid2sud gr = \ (r,c) -> pos gr (r,c)
+  where
+  pos :: [[a]] -> Position -> a
   pos gr (r,c) = (gr !! (r-1)) !! (c-1)
 
 showSudoku :: Sudoku -> IO()
@@ -74,31 +76,31 @@ bl x = concat $ filter (elem x) blocks
 subBl :: Int -> [Int]
 subBl x = concat $ filter (elem x) subBlocks
 
-subGrid :: Sudoku -> (Row,Column) -> [Value]
-subGrid s (r,c) = 
+subGrid :: Sudoku -> Position -> [Value]
+subGrid s (r,c) =
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
-subBlock :: Sudoku -> (Row,Column) -> [Value]
-subBlock s (r,c) = [ s (r',c') | r' <- subBl r, c' <- subBl c ]
+subBlock :: Sudoku -> Position -> [Value]
+subBlock s (r,c) = [ s (r',c') | r' <- nrcBl r, c' <- nrcBl c ]
 
 freeInSeq :: [Value] -> [Value]
-freeInSeq seq = values \\ seq 
+freeInSeq seq = values \\ seq
 
 freeInRow :: Sudoku -> Row -> [Value]
-freeInRow s r = 
+freeInRow s r =
   freeInSeq [ s (r,i) | i <- positions  ]
 
 freeInColumn :: Sudoku -> Column -> [Value]
-freeInColumn s c = 
+freeInColumn s c =
   freeInSeq [ s (i,c) | i <- positions ]
 
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgrid :: Sudoku -> Position -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
-freeInSubBlock :: Sudoku -> (Row,Column) -> [Value]
+freeInSubBlock :: Sudoku -> Position -> [Value]
 freeInSubBlock s (r,c) = freeInSeq (subBlock s (r,c))
 
-freeAtPos :: Sudoku -> (Row,Column) -> [Value]
+freeAtPos :: Sudoku -> Position -> [Value]
 freeAtPos s (r,c) = 
   (freeInRow s r) 
    `intersect` (freeInColumn s c) 
