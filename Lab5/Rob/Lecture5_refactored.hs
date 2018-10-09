@@ -97,7 +97,7 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> Position -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
--- Assignment 2 refactor
+-- Assignment 2
 rowConstrnt, columnConstrnt, blockConstrnt :: Constrnt
 rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
 columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
