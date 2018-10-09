@@ -97,28 +97,37 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> Position -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
-freeInSubBlock :: Sudoku -> Position -> [Value]
-freeInSubBlock s (r,c) = freeInSeq (subBlock s (r,c))
+-- Assignment 2 refactor
+rowConstrnt, columnConstrnt, blockConstrnt :: Constrnt
+rowConstrnt = [[(r,c)| c <- values ] | r <- values ]
+columnConstrnt = [[(r,c)| r <- values ] | c <- values ]
+blockConstrnt = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocks, b2 <- blocks]
+blockConstrntNrc = [[(r,c)| r <- b1, c <- b2 ] | b1 <- blocksNrc, b2 <- blocksNrc]
+
+freeAtPos' :: Sudoku -> Position -> Constrnt -> [Value]
+freeAtPos' s (r, c) xs = let ys = filter (elem (r,c)) xs in
+  foldl1 intersect (map ((values \\) . map s) ys)
 
 freeAtPos :: Sudoku -> Position -> [Value]
-freeAtPos s (r,c) = 
-  (freeInRow s r) 
-   `intersect` (freeInColumn s c) 
-   `intersect` (freeInSubgrid s (r,c)) 
+freeAtPos s p =
+  freeAtPos' s p rowConstrnt
+  `intersect` freeAtPos' s p columnConstrnt
+  `intersect` freeAtPos' s p blockConstrnt
+  `intersect` freeAtPos' s p rowConstrnt
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
 
 rowInjective :: Sudoku -> Row -> Bool
-rowInjective s r = injective vs where 
+rowInjective s r = injective vs where
    vs = filter (/= 0) [ s (r,i) | i <- positions ]
 
 colInjective :: Sudoku -> Column -> Bool
-colInjective s c = injective vs where 
+colInjective s c = injective vs where
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
 subgridInjective :: Sudoku -> Position -> Bool
-subgridInjective s (r,c) = injective vs where 
+subgridInjective s (r,c) = injective vs where
    vs = filter (/= 0) (subGrid s (r,c))
 
 subBlockInjective :: Sudoku -> Position -> Bool
@@ -131,7 +140,7 @@ consistent s = and $
                 ++
                [ colInjective s c |  c <- positions ]
                 ++
-               [ subgridInjective s (r,c) | 
+               [ subgridInjective s (r,c) |
                     r <- [1,4,7], c <- [1,4,7]]
                 ++
                [ subBlockInjective s (r,c) | 
@@ -140,8 +149,8 @@ consistent s = and $
 extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
 
-update :: Eq a => (a -> b) -> (a,b) -> a -> b 
-update f (y,z) x = if x == y then z else f x 
+update :: Eq a => (a -> b) -> (a,b) -> a -> b
+update f (y,z) x = if x == y then z else f x
 
 type Constraint = (Row,Column,[Value])
 
@@ -154,12 +163,12 @@ solved  :: Node -> Bool
 solved = null . snd
 
 extendNode :: Node -> Constraint -> [Node]
-extendNode (s,constraints) (r,c,vs) = 
+extendNode (s,constraints) (r,c,vs) =
    [(extend s ((r,c),v),
-     sortBy length3rd $ 
+     sortBy length3rd $
          prune (r,c,v) constraints) | v <- vs ]
 
-prune :: (Row,Column,Value) 
+prune :: (Row,Column,Value)
       -> [Constraint] -> [Constraint]
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
