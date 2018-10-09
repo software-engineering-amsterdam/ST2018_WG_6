@@ -30,7 +30,6 @@ randSet n = fmap list2set arbitrary
 randSet' :: Int -> Int -> IO (SetOrd.Set Int)
 randSet' l n = fmap list2set (randList l n)
 
-
 -- Assignment 3 --
 intersection :: Eq a => Set a -> Set a -> Set a
 intersection (Set xs) (Set ys) = Set (xs `intersect` ys)
@@ -45,4 +44,24 @@ difference (Set set1) set2 = Set [x | x <- set1, not (x `inSet` set2)]
 ---- Assignment 4 Reading time: 1.5 hours
 -- Chapter 5 was easier to understand and did not raise any questions.
 -- Most likely due to the presence of a lot of images that clarified the text.
+
+
+-- Assignment 5
+type Rel a = [(a, a)]
+
+symClos :: Ord a => Rel a -> Rel a
+symClos xs = xs `union` [(y, x) | (x, y) <- xs]
+
+-- Assignment 6 --
+infixr 5 @@
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
+
+trClosList :: Ord a => Rel a -> Rel a -> Rel a
+trClosList r s
+  | sort s == sort (s `union` (s @@ r)) = s
+  | otherwise = trClosList r (s `union` (s @@ r))
+
+trClos :: Ord a => Rel a -> Rel a
+trClos r = trClosList r raise
 
