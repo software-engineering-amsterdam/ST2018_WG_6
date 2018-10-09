@@ -18,6 +18,11 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
+-- Added for assignment 1
+subBlocks :: [[Int]]
+subBlocks = [[2..4],[6..8]]
+------------------------------
+
 showVal :: Value -> String
 showVal 0 = " "
 showVal d = show d
@@ -64,11 +69,17 @@ showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
 bl :: Int -> [Int]
-bl x = concat $ filter (elem x) blocks 
+bl x = concat $ filter (elem x) blocks
+
+subBl :: Int -> [Int]
+subBl x = concat $ filter (elem x) subBlocks
 
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
+
+subBlock :: Sudoku -> (Row,Column) -> [Value]
+subBlock s (r,c) = [ s (r',c') | r' <- nrcBl r, c' <- nrcBl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -83,6 +94,9 @@ freeInColumn s c =
 
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
+
+freeInSubBlock :: Sudoku -> (Row,Column) -> [Value]
+freeInSubBlock s (r,c) = freeInSeq (subBlock s (r,c))
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -104,6 +118,10 @@ colInjective s c = injective vs where
 subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
+
+subBlockInjective :: Sudoku -> (Row,Column) -> Bool
+subBlockInjective s (r,c) = injective vs where
+   vs = filter (/= 0) (subBlock s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -148,6 +166,9 @@ prune (r,c,v) ((x,y,zs):rest)
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+
+samesubblock :: (Row,Column) -> (Row,Column) -> Bool
+samesubblock (r,c) (x,y) = subBl r == subBl x && subBl c == subBl y
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
