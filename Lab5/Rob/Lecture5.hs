@@ -78,6 +78,7 @@ subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
+  -- subblocks are the special kind of blocks that only live in the NRC sudoku's
 subBlock :: Sudoku -> (Row,Column) -> [Value]
 subBlock s (r,c) = [ s (r',c') | r' <- subBl r, c' <- subBl c ]
 
