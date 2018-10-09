@@ -81,7 +81,7 @@ subGrid s (r,c) =
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
 subBlock :: Sudoku -> Position -> [Value]
-subBlock s (r,c) = [ s (r',c') | r' <- nrcBl r, c' <- nrcBl c ]
+subBlock s (r,c) = [ s (r',c') | r' <- subBl r, c' <- subBl c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq
@@ -117,11 +117,11 @@ colInjective :: Sudoku -> Column -> Bool
 colInjective s c = injective vs where 
    vs = filter (/= 0) [ s (i,c) | i <- positions ]
 
-subgridInjective :: Sudoku -> (Row,Column) -> Bool
+subgridInjective :: Sudoku -> Position -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
 
-subBlockInjective :: Sudoku -> (Row,Column) -> Bool
+subBlockInjective :: Sudoku -> Position -> Bool
 subBlockInjective s (r,c) = injective vs where
    vs = filter (/= 0) (subBlock s (r,c))
 
@@ -137,7 +137,7 @@ consistent s = and $
                [ subBlockInjective s (r,c) | 
                     r <- [2,6], c <- [2,6]]
 
-extend :: Sudoku -> ((Row,Column),Value) -> Sudoku
+extend :: Sudoku -> (Position,Value) -> Sudoku
 extend = update
 
 update :: Eq a => (a -> b) -> (a,b) -> a -> b 
@@ -169,10 +169,10 @@ prune (r,c,v) ((x,y,zs):rest)
   | samesubblock (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
 
-sameblock :: (Row,Column) -> (Row,Column) -> Bool
+sameblock :: Position -> Position -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
 
-samesubblock :: (Row,Column) -> (Row,Column) -> Bool
+samesubblock :: Position -> Position -> Bool
 samesubblock (r,c) (x,y) = subBl r == subBl x && subBl c == subBl y
 
 initNode :: Grid -> [Node]
@@ -180,7 +180,7 @@ initNode gr = let s = grid2sud gr in
               if (not . consistent) s then [] 
               else [(s, constraints s)]
 
-openPositions :: Sudoku -> [(Row,Column)]
+openPositions :: Sudoku -> [Position]
 openPositions s = [ (r,c) | r <- positions,  
                             c <- positions, 
                             s (r,c) == 0 ]
@@ -350,21 +350,21 @@ uniqueSol node = singleton (solveNs [node]) where
   singleton [x] = True
   singleton (x:y:zs) = False
 
-eraseS :: Sudoku -> (Row,Column) -> Sudoku
+eraseS :: Sudoku -> Position -> Sudoku
 eraseS s (r,c) (x,y) | (r,c) == (x,y) = 0
                      | otherwise      = s (x,y)
 
-eraseN :: Node -> (Row,Column) -> Node
+eraseN :: Node -> Position -> Node
 eraseN n (r,c) = (s, constraints s) 
   where s = eraseS (fst n) (r,c) 
 
-minimalize :: Node -> [(Row,Column)] -> Node
+minimalize :: Node -> [Position] -> Node
 minimalize n [] = n
 minimalize n ((r,c):rcs) | uniqueSol n' = minimalize n' rcs
                          | otherwise    = minimalize n  rcs
   where n' = eraseN n (r,c)
 
-filledPositions :: Sudoku -> [(Row,Column)]
+filledPositions :: Sudoku -> [Position]
 filledPositions s = [ (r,c) | r <- positions,  
                               c <- positions, s (r,c) /= 0 ]
 
