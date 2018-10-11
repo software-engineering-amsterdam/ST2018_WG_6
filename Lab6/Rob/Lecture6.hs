@@ -110,6 +110,7 @@ coprimes = filter (uncurry coprime) pairs
 expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
+-- Implemented in Lab6.hs
 exM :: Integer -> Integer -> Integer -> Integer
 exM = expM -- to be replaced by a fast version
 
