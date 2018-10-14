@@ -22,7 +22,7 @@ testNrc = (nodeListToGrid . initNode) exampleNRCSolved ==
 
 -- Assignment 2 --
 {-
-  The actual refactor is done in the Lecture5.hs file
+  The actual refactor is done in the Lecture5Refactor.hs file
 
   After the refactor, it was easier to extend for the NRC problem. There was just
   another Constrnt needed, for the NRC blocks.
