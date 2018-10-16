@@ -181,7 +181,7 @@ test_symClosTrClosEquality :: IO ()
 test_symClosTrClosEquality = do
   putStrLn ("Testing whether transitive closure of symmetric closure is equal to"
         ++ " the symmetric closure of the transitive closure")
-  quickCheck (prop_symClos :: (Rel Int -> Bool))
+  quickCheck (prop_symClosTrClos :: (Rel Int -> Bool))
 
 {-
   Test report: they are equal for all test cases. However, we can also show that

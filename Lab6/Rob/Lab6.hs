@@ -6,7 +6,7 @@ import Lecture6
 import System.CPUTime
 import Text.Printf
 import Control.Applicative
-
+import Control.Monad
 
 -- Assignment 1 - 45 minutes
 exM' :: Integer -> Integer -> Integer -> Integer
@@ -52,3 +52,52 @@ composites :: [Integer]
 composites = [x | x <- [1..], isComposite x]
 
 -- Assignment 4
+foolThePrimeTest :: Int -> Int -> IO [Integer]
+foolThePrimeTest k n = filterM (primeTestsF k) (take n composites)
+
+smallestFaultyPrime :: Int -> IO Integer
+smallestFaultyPrime k = fmap minimum (allFooledPrimes 1000)
+                        where 
+                            allFooledPrimes 0 = do
+                                return []
+                            allFooledPrimes n = do
+                                x <- foolThePrimeTest k 100
+                                xs <- allFooledPrimes (n-1)
+                                return (x ++ xs)
+
+-- Assignment 5
+carmichael :: [Integer]
+carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
+      k <- [2..], 
+      prime (6*k+1), 
+      prime (12*k+1), 
+      prime (18*k+1) ]
+
+foolThePrimeTest' :: Int -> Int -> IO [Integer]
+foolThePrimeTest' k n = filterM (primeTestsF k) (take n carmichael)
+
+smallestFaultyPrime' :: Int -> IO Integer
+smallestFaultyPrime' k = fmap minimum (allFooledPrimes 100000)
+                        where 
+                            allFooledPrimes 0 = do
+                                return []
+                            allFooledPrimes n = do
+                                x <- foolThePrimeTest' k 100
+                                xs <- allFooledPrimes (n-1)
+                                return (x ++ xs)
+
+-- Assignment 6
+foolThePrimeTest' :: Int -> Int -> IO [Integer]
+foolThePrimeTest' k n = filterM (primeTestsF k) (take n carmichael)
+
+smallestFaultyPrime' :: Int -> IO Integer
+smallestFaultyPrime' k = fmap minimum (allFooledPrimes 100000)
+                        where 
+                            allFooledPrimes 0 = do
+                                return []
+                            allFooledPrimes n = do
+                                x <- foolThePrimeTest' k 100
+                                xs <- allFooledPrimes (n-1)
+                                return (x ++ xs)
+
+
