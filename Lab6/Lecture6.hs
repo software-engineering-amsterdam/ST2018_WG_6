@@ -111,7 +111,7 @@ expM ::  Integer -> Integer -> Integer -> Integer
 expM x y = rem (x^y)
 
 exM :: Integer -> Integer -> Integer -> Integer
-exM = expM -- to be replaced by a fast version
+exM = expM
 
 primeTestF :: Integer -> IO Bool
 primeTestF n = do 
@@ -144,7 +144,7 @@ primeMR k n = do
     then return False else primeMR (k-1) n
 
 composites :: [Integer]
-composites = error "not yet implemented"
+composites = [x | x <- [4..], (not . prime) x]
 
 encodeDH :: Integer -> Integer -> Integer -> Integer
 encodeDH p k m = m*k `mod` p
